@@ -1,1 +1,507 @@
 
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+>
+
+<meta
+  name="robots"
+  content="noindex,nofollow"
+>
+
+<title>
+GitHub RAW → IMG CDN Converter
+</title>
+
+<style>
+
+/* =========================
+   RESET
+========================= */
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+
+  background:#0f1115;
+
+  color:#fff;
+
+  font-family:
+    Arial,
+    sans-serif;
+
+  min-height:100vh;
+
+  padding:20px;
+}
+
+/* =========================
+   WRAP
+========================= */
+
+.container{
+
+  width:100%;
+
+  max-width:1000px;
+
+  margin:auto;
+}
+
+/* =========================
+   TITLE
+========================= */
+
+.title{
+
+  font-size:28px;
+
+  font-weight:700;
+
+  margin-bottom:18px;
+
+  text-align:center;
+}
+
+/* =========================
+   TEXTAREA
+========================= */
+
+textarea{
+
+  width:100%;
+
+  min-height:220px;
+
+  resize:vertical;
+
+  border:none;
+
+  outline:none;
+
+  border-radius:16px;
+
+  padding:16px;
+
+  background:#1a1d24;
+
+  color:#fff;
+
+  font-size:14px;
+
+  line-height:1.6;
+
+  margin-bottom:16px;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+
+.action-wrap{
+
+  display:flex;
+
+  gap:10px;
+
+  flex-wrap:wrap;
+
+  margin-bottom:22px;
+}
+
+.btn{
+
+  border:none;
+
+  cursor:pointer;
+
+  padding:14px 18px;
+
+  border-radius:14px;
+
+  font-weight:700;
+
+  color:#fff;
+
+  transition:.22s ease;
+}
+
+.convert-btn{
+
+  background:#007bff;
+}
+
+.convert-btn:hover{
+
+  background:#0a8dff;
+}
+
+.clear-btn{
+
+  background:#ff3b30;
+}
+
+.clear-btn:hover{
+
+  background:#ff554b;
+}
+
+/* =========================
+   RESULT
+========================= */
+
+.result{
+
+  display:flex;
+
+  flex-direction:column;
+
+  gap:12px;
+}
+
+/* CARD */
+
+.result-item{
+
+  background:#1a1d24;
+
+  border-radius:16px;
+
+  padding:14px;
+
+  display:flex;
+
+  gap:12px;
+
+  align-items:center;
+
+  justify-content:space-between;
+
+  flex-wrap:wrap;
+
+  border:1px solid rgba(255,255,255,.06);
+}
+
+/* LINK */
+
+.result-link{
+
+  flex:1;
+
+  min-width:240px;
+
+  word-break:break-all;
+
+  color:#70c0ff;
+
+  font-size:14px;
+}
+
+/* COPY */
+
+.copy-btn{
+
+  background:#16a34a;
+
+  min-width:100px;
+}
+
+.copy-btn:hover{
+
+  background:#1ab956;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width:768px){
+
+  body{
+
+    padding:14px;
+  }
+
+  .title{
+
+    font-size:22px;
+  }
+
+  textarea{
+
+    min-height:180px;
+
+    font-size:13px;
+  }
+
+  .btn{
+
+    width:100%;
+  }
+
+  .result-item{
+
+    flex-direction:column;
+
+    align-items:stretch;
+  }
+
+  .copy-btn{
+
+    width:100%;
+  }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="title">
+
+    GitHub RAW → IMG CDN
+
+  </div>
+
+  <!-- INPUT -->
+
+  <textarea
+    id="input"
+    placeholder="Dán 1 hoặc nhiều link GitHub RAW vào đây...
+
+Ví dụ:
+https://raw.githubusercontent.com/haihath9/image/main/tech886.jpg
+https://raw.githubusercontent.com/haihath9/image1/main/cat.png
+https://raw.githubusercontent.com/haihath9/image2/main/test.webp"
+  ></textarea>
+
+  <!-- BUTTON -->
+
+  <div class="action-wrap">
+
+    <button
+      class="btn convert-btn"
+      onclick="convertLinks()"
+    >
+      Convert Link
+    </button>
+
+    <button
+      class="btn clear-btn"
+      onclick="clearAll()"
+    >
+      Xóa
+    </button>
+
+  </div>
+
+  <!-- RESULT -->
+
+  <div
+    class="result"
+    id="result"
+  ></div>
+
+</div>
+
+<script>
+
+//////////////////////////////////////////////////////
+// CONVERT
+//////////////////////////////////////////////////////
+
+function convertLinks(){
+
+  const input = document
+    .getElementById('input')
+    .value
+    .trim();
+
+  const result =
+    document.getElementById('result');
+
+  result.innerHTML = '';
+
+  if(!input){
+
+    alert('Vui lòng nhập link');
+
+    return;
+  }
+
+  //////////////////////////////////////////////////////
+  // SPLIT LINES
+  //////////////////////////////////////////////////////
+
+  const lines = input
+    .split('\n')
+    .map(v => v.trim())
+    .filter(Boolean);
+
+  //////////////////////////////////////////////////////
+  // LOOP
+  //////////////////////////////////////////////////////
+
+  lines.forEach(link => {
+
+    ////////////////////////////////////////////////////
+    // MATCH RAW GITHUB
+    ////////////////////////////////////////////////////
+
+    const match = link.match(
+      /^https:\/\/raw\.githubusercontent\.com\/[^\/]+\/[^\/]+\/main\/(.+)$/i
+    );
+
+    if(!match){
+
+      createError(link);
+
+      return;
+    }
+
+    ////////////////////////////////////////////////////
+    // FILE PATH
+    ////////////////////////////////////////////////////
+
+    const filePath = match[1];
+
+    ////////////////////////////////////////////////////
+    // FINAL CDN
+    ////////////////////////////////////////////////////
+
+    const finalURL =
+      'https://img.quahai.com/' + filePath;
+
+    ////////////////////////////////////////////////////
+    // RENDER
+    ////////////////////////////////////////////////////
+
+    createResult(finalURL);
+
+  });
+
+}
+
+//////////////////////////////////////////////////////
+// CREATE RESULT
+//////////////////////////////////////////////////////
+
+function createResult(url){
+
+  const result =
+    document.getElementById('result');
+
+  const item =
+    document.createElement('div');
+
+  item.className =
+    'result-item';
+
+  item.innerHTML = `
+
+    <div class="result-link">
+      ${url}
+    </div>
+
+    <button
+      class="btn copy-btn"
+      onclick="copyLink('${url}')"
+    >
+      Copy
+    </button>
+
+  `;
+
+  result.appendChild(item);
+
+}
+
+//////////////////////////////////////////////////////
+// ERROR
+//////////////////////////////////////////////////////
+
+function createError(text){
+
+  const result =
+    document.getElementById('result');
+
+  const item =
+    document.createElement('div');
+
+  item.className =
+    'result-item';
+
+  item.innerHTML = `
+
+    <div
+      class="result-link"
+      style="color:#ff6b6b"
+    >
+      Link không hợp lệ:
+      ${text}
+    </div>
+
+  `;
+
+  result.appendChild(item);
+
+}
+
+//////////////////////////////////////////////////////
+// COPY
+//////////////////////////////////////////////////////
+
+async function copyLink(url){
+
+  try{
+
+    await navigator
+      .clipboard
+      .writeText(url);
+
+    alert('Đã copy');
+
+  }catch(e){
+
+    alert('Copy thất bại');
+
+  }
+
+}
+
+//////////////////////////////////////////////////////
+// CLEAR
+//////////////////////////////////////////////////////
+
+function clearAll(){
+
+  document
+    .getElementById('input')
+    .value = '';
+
+  document
+    .getElementById('result')
+    .innerHTML = '';
+
+}
+
+</script>
+
+</body>
+</html>
