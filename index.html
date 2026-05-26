@@ -1,1 +1,491 @@
 
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>GitHub RAW → jsDelivr CDN</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+
+    min-height:100vh;
+
+    background:#0f1115;
+
+    font-family:Arial,sans-serif;
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    padding:20px;
+
+    color:#fff;
+}
+
+.container{
+
+    width:100%;
+
+    max-width:850px;
+
+    background:#171a21;
+
+    border-radius:20px;
+
+    padding:24px;
+
+    border:1px solid rgba(255,255,255,.08);
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,.35);
+}
+
+h1{
+
+    text-align:center;
+
+    margin-bottom:16px;
+
+    font-size:24px;
+}
+
+.desc{
+
+    color:#aaa;
+
+    line-height:1.7;
+
+    margin-bottom:22px;
+
+    text-align:center;
+}
+
+textarea{
+
+    width:100%;
+
+    min-height:120px;
+
+    border:none;
+
+    outline:none;
+
+    resize:vertical;
+
+    border-radius:14px;
+
+    padding:16px;
+
+    background:#0f1115;
+
+    color:#fff;
+
+    font-size:15px;
+
+    line-height:1.6;
+
+    border:1px solid rgba(255,255,255,.08);
+}
+
+.button-group{
+
+    display:flex;
+
+    gap:10px;
+
+    margin-top:14px;
+
+    flex-wrap:wrap;
+}
+
+button{
+
+    border:none;
+
+    cursor:pointer;
+
+    transition:.2s ease;
+
+    padding:14px 18px;
+
+    border-radius:12px;
+
+    font-size:14px;
+
+    font-weight:700;
+}
+
+.convert-btn{
+
+    background:#00aaff;
+
+    color:#fff;
+}
+
+.copy-btn{
+
+    background:#22c55e;
+
+    color:#fff;
+}
+
+.clear-btn{
+
+    background:#ff3b30;
+
+    color:#fff;
+}
+
+button:hover{
+
+    transform:translateY(-2px);
+
+    opacity:.95;
+}
+
+.result{
+
+    margin-top:22px;
+}
+
+.result-title{
+
+    margin-bottom:10px;
+
+    color:#ccc;
+}
+
+.output{
+
+    width:100%;
+
+    min-height:120px;
+
+    padding:16px;
+
+    border-radius:14px;
+
+    background:#0f1115;
+
+    border:1px solid rgba(255,255,255,.08);
+
+    color:#00d4ff;
+
+    line-height:1.7;
+
+    word-break:break-all;
+
+    white-space:pre-wrap;
+}
+
+.preview{
+
+    margin-top:24px;
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(auto-fill,minmax(160px,1fr));
+
+    gap:14px;
+}
+
+.preview img{
+
+    width:100%;
+
+    border-radius:14px;
+
+    background:#fff;
+
+    aspect-ratio:1/1;
+
+    object-fit:cover;
+
+    box-shadow:
+        0 8px 20px rgba(0,0,0,.25);
+}
+
+/* MOBILE */
+
+@media (max-width:768px){
+
+    .container{
+
+        padding:18px;
+    }
+
+    h1{
+
+        font-size:20px;
+    }
+
+    textarea,
+    .output{
+
+        font-size:14px;
+    }
+
+    button{
+
+        flex:1;
+
+        width:100%;
+    }
+
+    .preview{
+
+        grid-template-columns:
+            repeat(2,1fr);
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>
+        GitHub RAW → jsDelivr CDN
+    </h1>
+
+    <div class="desc">
+
+        Hỗ trợ nhiều repo:
+        <br><br>
+
+        ✔ image
+        <br>
+
+        ✔ image1
+        <br>
+
+        ✔ image2
+        <br>
+
+        ✔ image3...
+        <br><br>
+
+        Ví dụ:
+        <br>
+
+        https://raw.githubusercontent.com/haihath9/image2/refs/heads/main/image/test.jpg
+
+    </div>
+
+    <textarea
+        id="inputLink"
+        placeholder="Dán 1 hoặc nhiều link GitHub RAW..."
+    ></textarea>
+
+    <div class="button-group">
+
+        <button
+            class="convert-btn"
+            onclick="convertLinks()"
+        >
+            Convert CDN
+        </button>
+
+        <button
+            class="copy-btn"
+            onclick="copyResult()"
+        >
+            Copy
+        </button>
+
+        <button
+            class="clear-btn"
+            onclick="clearAll()"
+        >
+            Xóa
+        </button>
+
+    </div>
+
+    <div class="result">
+
+        <div class="result-title">
+
+            Link jsDelivr CDN:
+
+        </div>
+
+        <div
+            class="output"
+            id="outputLink"
+        >
+            Chưa có dữ liệu...
+        </div>
+
+    </div>
+
+    <div
+        class="preview"
+        id="previewBox"
+    ></div>
+
+</div>
+
+<script>
+
+//////////////////////////////////////////////////////
+// CONVERT LINKS
+//////////////////////////////////////////////////////
+
+function convertLinks(){
+
+    const input = document
+        .getElementById('inputLink')
+        .value
+        .trim();
+
+    const output =
+        document.getElementById('outputLink');
+
+    const previewBox =
+        document.getElementById('previewBox');
+
+    if(!input){
+
+        alert('Vui lòng nhập link');
+
+        return;
+    }
+
+    //////////////////////////////////////////////////////
+    // SPLIT MULTIPLE LINKS
+    //////////////////////////////////////////////////////
+
+    const lines = input
+        .split('\n')
+        .map(x => x.trim())
+        .filter(x => x);
+
+    let results = [];
+
+    previewBox.innerHTML = '';
+
+    //////////////////////////////////////////////////////
+    // LOOP
+    //////////////////////////////////////////////////////
+
+    lines.forEach(link => {
+
+        //////////////////////////////////////////////////
+        // SUPPORT:
+        // image
+        // image1
+        // image2
+        // image3...
+        //////////////////////////////////////////////////
+
+        const regex =
+            /^https:\/\/raw\.githubusercontent\.com\/([^\/]+)\/([^\/]+)\/refs\/heads\/([^\/]+)\/(.+)$/;
+
+        const match = link.match(regex);
+
+        if(match){
+
+            const user   = match[1];
+
+            const repo   = match[2];
+
+            const branch = match[3];
+
+            const file   = match[4];
+
+            const cdnUrl =
+                `https://cdn.jsdelivr.net/gh/${user}/${repo}@${branch}/${file}`;
+
+            results.push(cdnUrl);
+
+            //////////////////////////////////////////////////
+            // IMAGE PREVIEW
+            //////////////////////////////////////////////////
+
+            const img =
+                document.createElement('img');
+
+            img.loading = 'lazy';
+
+            img.src = cdnUrl;
+
+            previewBox.appendChild(img);
+
+        }else{
+
+            results.push(
+                'INVALID: ' + link
+            );
+
+        }
+
+    });
+
+    //////////////////////////////////////////////////////
+    // OUTPUT
+    //////////////////////////////////////////////////////
+
+    output.innerText =
+        results.join('\n\n');
+
+}
+
+//////////////////////////////////////////////////////
+// COPY
+//////////////////////////////////////////////////////
+
+function copyResult(){
+
+    const text =
+        document.getElementById('outputLink')
+        .innerText;
+
+    if(
+        text === 'Chưa có dữ liệu...'
+    ){
+        return;
+    }
+
+    navigator.clipboard.writeText(text);
+
+    alert('Đã copy');
+}
+
+//////////////////////////////////////////////////////
+// CLEAR
+//////////////////////////////////////////////////////
+
+function clearAll(){
+
+    document.getElementById('inputLink').value = '';
+
+    document.getElementById('outputLink').innerText =
+        'Chưa có dữ liệu...';
+
+    document.getElementById('previewBox').innerHTML = '';
+
+}
+
+</script>
+
+</body>
+</html>
