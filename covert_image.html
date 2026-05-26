@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -17,7 +16,7 @@
 >
 
 <title>
-GitHub RAW → IMG CDN Converter
+GitHub RAW → IMG CDN
 </title>
 
 <style>
@@ -48,7 +47,7 @@ body{
 }
 
 /* =========================
-   WRAP
+   CONTAINER
 ========================= */
 
 .container{
@@ -70,9 +69,9 @@ body{
 
   font-weight:700;
 
-  margin-bottom:18px;
-
   text-align:center;
+
+  margin-bottom:18px;
 }
 
 /* =========================
@@ -118,7 +117,7 @@ textarea{
 
   flex-wrap:wrap;
 
-  margin-bottom:22px;
+  margin-bottom:20px;
 }
 
 .btn{
@@ -171,8 +170,6 @@ textarea{
   gap:12px;
 }
 
-/* CARD */
-
 .result-item{
 
   background:#1a1d24;
@@ -194,8 +191,6 @@ textarea{
   border:1px solid rgba(255,255,255,.06);
 }
 
-/* LINK */
-
 .result-link{
 
   flex:1;
@@ -209,7 +204,9 @@ textarea{
   font-size:14px;
 }
 
-/* COPY */
+/* =========================
+   COPY
+========================= */
 
 .copy-btn{
 
@@ -221,6 +218,15 @@ textarea{
 .copy-btn:hover{
 
   background:#1ab956;
+}
+
+/* =========================
+   ERROR
+========================= */
+
+.error{
+
+  color:#ff6b6b;
 }
 
 /* =========================
@@ -283,12 +289,17 @@ textarea{
 
   <textarea
     id="input"
-    placeholder="Dán 1 hoặc nhiều link GitHub RAW vào đây...
+    placeholder="Dán 1 hoặc nhiều link GitHub RAW...
 
-Ví dụ:
-https://raw.githubusercontent.com/haihath9/image/main/tech886.jpg
-https://raw.githubusercontent.com/haihath9/image1/main/cat.png
-https://raw.githubusercontent.com/haihath9/image2/main/test.webp"
+Hỗ trợ:
+
+https://raw.githubusercontent.com/haihath9/image/refs/heads/main/image/name.jpg
+
+https://raw.githubusercontent.com/haihath9/image/refs/heads/main/image1/name.jpg
+
+https://raw.githubusercontent.com/haihath9/image/refs/heads/main/image2/name.jpg
+
+https://raw.githubusercontent.com/haihath9/image/refs/heads/main/image3/name.jpg"
   ></textarea>
 
   <!-- BUTTON -->
@@ -323,7 +334,7 @@ https://raw.githubusercontent.com/haihath9/image2/main/test.webp"
 <script>
 
 //////////////////////////////////////////////////////
-// CONVERT
+// CONVERT LINKS
 //////////////////////////////////////////////////////
 
 function convertLinks(){
@@ -361,12 +372,18 @@ function convertLinks(){
   lines.forEach(link => {
 
     ////////////////////////////////////////////////////
-    // MATCH RAW GITHUB
+    // MATCH RAW
     ////////////////////////////////////////////////////
 
     const match = link.match(
-      /^https:\/\/raw\.githubusercontent\.com\/[^\/]+\/[^\/]+\/main\/(.+)$/i
+
+      /^https:\/\/raw\.githubusercontent\.com\/haihath9\/image\/refs\/heads\/main\/(.+)$/i
+
     );
+
+    ////////////////////////////////////////////////////
+    // INVALID
+    ////////////////////////////////////////////////////
 
     if(!match){
 
@@ -382,7 +399,7 @@ function convertLinks(){
     const filePath = match[1];
 
     ////////////////////////////////////////////////////
-    // FINAL CDN
+    // FINAL URL
     ////////////////////////////////////////////////////
 
     const finalURL =
@@ -449,12 +466,14 @@ function createError(text){
 
   item.innerHTML = `
 
-    <div
-      class="result-link"
-      style="color:#ff6b6b"
-    >
+    <div class="result-link error">
+
       Link không hợp lệ:
+
+      <br><br>
+
       ${text}
+
     </div>
 
   `;
